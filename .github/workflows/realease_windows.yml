@@ -45,12 +45,6 @@ jobs:
           Build-Exe 'dist/torment.exe' @('torment/ToD.cpp')
           Build-Exe 'dist/worldscolide.exe' @('worldscolide/wc.cpp')
 
-          # Launchers (open a new console then run the game exe)
-          Build-Exe 'dist/dragonsbane_launcher.exe' @('launchers/dragonsbane_launcher.cpp')
-          Build-Exe 'dist/herebedragons_launcher.exe' @('launchers/herebedragons_launcher.cpp')
-          Build-Exe 'dist/torment_launcher.exe' @('launchers/torment_launcher.cpp')
-          Build-Exe 'dist/worldscolide_launcher.exe' @('launchers/worldscolide_launcher.cpp')
-
           # Bundle
           $zipName = "TerminalGames-$tag-windows-x64.zip"
           if (Test-Path $zipName) { Remove-Item -Force $zipName }
@@ -68,10 +62,6 @@ jobs:
           files: |
             ${{ env.ZIP_NAME }}
             dist/dragonsbane.exe
-            dist/dragonsbane_launcher.exe
             dist/herebedragons.exe
-            dist/herebedragons_launcher.exe
             dist/torment.exe
-            dist/torment_launcher.exe
             dist/worldscolide.exe
-            dist/worldscolide_launcher.exe
