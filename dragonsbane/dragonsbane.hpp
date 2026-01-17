@@ -94,6 +94,7 @@ class logic::Elements
         Key key;
         Exit exit; 
         void moveHero(logic::Game game);
+        void moveHeroDir(logic::Game game, int di, int dj);
         void moveDragon(logic::Game game, int dragonID);
         void placeDragons(logic::Game game);
         void placeExit(logic::Game& game);

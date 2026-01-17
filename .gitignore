@@ -1,0 +1,13 @@
+# Build artifacts
+*.exe
+*.dll
+*.obj
+*.o
+*.a
+*.lib
+
+# IDE
+.idea/
+
+# OS
+.DS_Store
