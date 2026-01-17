@@ -1,0 +1,77 @@
+name: Release (Windows)
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build (MSVC)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = '${{ github.ref_name }}'
+
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+
+          $commonFlags = @(
+            '/std:c++17',
+            '/O2',
+            '/EHsc',
+            '/nologo'
+          )
+
+          function Build-Exe([string]$outExe, [string[]]$sources) {
+            Write-Host "Building $outExe from $($sources -join ', ')"
+            & cl @commonFlags /Fe:"$outExe" $sources
+          }
+
+          # Games
+          Build-Exe 'dist/dragonsbane.exe' @('dragonsbane/dragonsbane.cpp')
+          Build-Exe 'dist/herebedragons.exe' @('herebedragons/herebedragons.cpp')
+          Build-Exe 'dist/torment.exe' @('torment/ToD.cpp')
+          Build-Exe 'dist/worldscolide.exe' @('worldscolide/wc.cpp')
+
+          # Launchers (open a new console then run the game exe)
+          Build-Exe 'dist/dragonsbane_launcher.exe' @('launchers/dragonsbane_launcher.cpp')
+          Build-Exe 'dist/herebedragons_launcher.exe' @('launchers/herebedragons_launcher.cpp')
+          Build-Exe 'dist/torment_launcher.exe' @('launchers/torment_launcher.cpp')
+          Build-Exe 'dist/worldscolide_launcher.exe' @('launchers/worldscolide_launcher.cpp')
+
+          # Bundle
+          $zipName = "TerminalGames-$tag-windows-x64.zip"
+          if (Test-Path $zipName) { Remove-Item -Force $zipName }
+          Compress-Archive -Path 'dist/*.exe' -DestinationPath $zipName
+
+          "ZIP_NAME=$zipName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            ${{ env.ZIP_NAME }}
+            dist/dragonsbane.exe
+            dist/dragonsbane_launcher.exe
+            dist/herebedragons.exe
+            dist/herebedragons_launcher.exe
+            dist/torment.exe
+            dist/torment_launcher.exe
+            dist/worldscolide.exe
+            dist/worldscolide_launcher.exe
